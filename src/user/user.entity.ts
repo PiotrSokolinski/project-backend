@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToOne } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToOne, JoinColumn, OneToMany } from 'typeorm'
 import { GroupEntity } from '../group/group.entity'
+import { TaskEntity } from '../task/task.entity'
 
 @Entity('users')
 @Index(['email'], { unique: true })
@@ -19,7 +20,14 @@ export class UserEntity {
   lastName: string
 
   @ManyToOne(type => GroupEntity, group => group.members)
+  @JoinColumn()
   group: GroupEntity
+
+  @OneToMany(type => TaskEntity, task => task.author)
+  authorizedTasks: TaskEntity[]
+
+  @OneToMany(type => TaskEntity, task => task.assignee)
+  assignedTasks: TaskEntity[]
 
   @Column('varchar', { default: '' })
   avatarUrl: string
@@ -29,4 +37,13 @@ export class UserEntity {
 
   @Column('varchar')
   token: string
+
+  @Column('varchar', { default: '' })
+  nick: string
+
+  @Column('varchar', { default: 'Administrator' })
+  role: string
+
+  @Column('varchar', { default: '#033dfc' })
+  color: string
 }

@@ -30,11 +30,61 @@ export class UserService {
     return await this.UserRepository.findOne({ where: { email: newEmail } })
   }
 
+  async findByToken(newToken: string): Promise<UserEntity> {
+    return await this.UserRepository.findOne({ where: { token: newToken } })
+  }
+
+  async findById(newId: number): Promise<UserEntity> {
+    return await this.UserRepository.findOne({ where: { id: newId } })
+  }
+
   async updateUser(user: UserEntity): Promise<UserEntity> {
     return await this.UserRepository.save(user)
   }
 
-  // async findGroupUsers(passedId: number) {
-  //   return await this.UserRepository.find({ where: { group: { id: passedId } } })
-  // }
+  async setNewPassword(user: UserEntity, newPassword: string): Promise<UserEntity> {
+    const newHashedPassord = await bcrypt.hash(newPassword, saltRounds)
+    user.hashedPassword = newHashedPassord
+    return await this.updateUser(user)
+  }
+
+  async findGroupUsers(passedId: number) {
+    return await this.UserRepository.find({ where: { group: { id: passedId } } })
+  }
+
+  async editName(user: any, firstName: string, lastName: string) {
+    user.firstName = firstName
+    user.lastName = lastName
+    return await this.updateUser(user)
+  }
+
+  async editUserDetails(user: any, nick: string, role: string, color: string) {
+    user.nick = nick
+    user.role = role
+    user.color = color
+    return await this.updateUser(user)
+  }
+
+  async changeEmail(user: any, password: string, email: string) {
+    if (!(await bcrypt.compare(password, user.hashedPassword))) {
+      return new Error('Password is incorrect!')
+    }
+    user.email = email
+    return await this.updateUser(user)
+  }
+
+  async changePassword(user: any, password: string, newPassword: string) {
+    if (!(await bcrypt.compare(password, user.hashedPassword))) {
+      return new Error('Password is incorrect!')
+    }
+    const newHashedPassord = await bcrypt.hash(newPassword, saltRounds)
+    user.hashedPassword = newHashedPassord
+
+    return await this.updateUser(user)
+  }
+
+  async removeUserFromGroup(user: any) {
+    user.group = null
+    return await this.updateUser(user)
+  }
 }

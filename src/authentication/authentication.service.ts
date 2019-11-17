@@ -19,7 +19,7 @@ export class AuthenticationService {
   }
 
   async generateToken(user: any): Promise<any> {
-    const payload = { username: user.email }
+    const payload = { email: user.email }
     return this.jwtService.sign(payload)
   }
 

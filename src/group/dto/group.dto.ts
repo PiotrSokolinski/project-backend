@@ -1,4 +1,5 @@
 import { Field, ObjectType, ID, Int } from 'type-graphql'
+import { UserEntity } from '../../user/user.entity'
 
 @ObjectType()
 export class GroupDto {
@@ -10,4 +11,6 @@ export class GroupDto {
   @Field({ nullable: true }) readonly zipCode?: string
   @Field({ nullable: true }) readonly city?: string
   @Field({ nullable: true }) readonly country?: string
+  // !!!!!!!!
+  //@Field() readonly members: UserEntity[]
 }
