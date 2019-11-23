@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
 import { UserEntity } from './user.entity'
-import { Repository } from 'typeorm'
+import { Repository, In } from 'typeorm'
 import { CreateUserDto } from './dto/create-user.dto'
 
 const saltRounds = 10
@@ -87,4 +87,14 @@ export class UserService {
     user.group = null
     return await this.updateUser(user)
   }
+
+  async findAllByIds(ids: number[]): Promise<UserEntity[]> {
+    return await this.UserRepository.find({
+      id: In(ids),
+    })
+  }
+
+  // async getAuthor(groupId: number, taskId: number): Promise<UserEntity> {
+  //   return await this.UserRepository.findOne({ where: { group: { id: groupId }, authorizedTasks: {} } })
+  // }
 }

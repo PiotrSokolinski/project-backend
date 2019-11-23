@@ -34,10 +34,16 @@ export class TaskService {
     return await this.TaskRepository.save(task)
   }
 
-  async getCurrentTask(userId): Promise<TaskEntity> {
+  async findById(passedId: number): Promise<TaskEntity> {
+    return await this.TaskRepository.findOne({ where: { id: passedId } })
+  }
+
+  // TO DO: why does not work with @CurrentUser id
+  // in other places Current User works fine
+  async getCurrentTask(userId: number): Promise<TaskEntity> {
     const tasks = await this.TaskRepository.find({
       where: {
-        authorId: userId,
+        author: { id: userId },
       },
       order: {
         createdAt: 'ASC',
@@ -46,7 +52,15 @@ export class TaskService {
     return tasks[tasks.length - 1]
   }
 
-  //   async getTasks(): Promise<TaskEntity[]> {
-  //     return await this.TaskRepository.find()
-  //   }
+  async getGroupTasks(passedId: number): Promise<TaskEntity[]> {
+    return await this.TaskRepository.find({ where: { group: { id: passedId } } })
+  }
+
+  async getGroupTasksToDoInProgress(passedId: number): Promise<TaskEntity[]> {
+    const toDoTasks = await this.TaskRepository.find({ where: { group: { id: passedId }, status: 'To Do' } })
+    const inProgressTasks = await this.TaskRepository.find({
+      where: { group: { id: passedId }, status: 'In Progress' },
+    })
+    return toDoTasks.concat(inProgressTasks)
+  }
 }

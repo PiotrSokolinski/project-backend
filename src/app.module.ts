@@ -7,13 +7,14 @@ import { GraphQLModule } from '@nestjs/graphql'
 import { UserModule } from './user/user.module'
 import { GroupModule } from './group/group.module'
 import { TaskModule } from './task/task.module'
+import { EventModule } from './event/event.module'
 import { AuthenticationModule } from './authentication/authentication.module'
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
     GraphQLModule.forRoot({
-      autoSchemaFile: 'schema.gpl',
+      autoSchemaFile: 'schema.gql',
       context: ({ req }) => ({ req }),
     }),
     MailerModule.forRoot({
@@ -33,6 +34,7 @@ import { AuthenticationModule } from './authentication/authentication.module'
     GroupModule,
     AuthenticationModule,
     TaskModule,
+    EventModule,
   ],
   controllers: [AppController],
   providers: [AppService],

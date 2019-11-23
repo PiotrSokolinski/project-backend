@@ -1,6 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToOne, JoinColumn, OneToMany } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  JoinTable,
+  ManyToMany,
+} from 'typeorm'
 import { GroupEntity } from '../group/group.entity'
 import { TaskEntity } from '../task/task.entity'
+import { EventEntity } from '../event/event.entity'
 
 @Entity('users')
 @Index(['email'], { unique: true })
@@ -25,6 +36,9 @@ export class UserEntity {
 
   @OneToMany(type => TaskEntity, task => task.author)
   authorizedTasks: TaskEntity[]
+
+  @OneToMany(type => EventEntity, event => event.author)
+  authorizedEvents: EventEntity[]
 
   @OneToMany(type => TaskEntity, task => task.assignee)
   assignedTasks: TaskEntity[]

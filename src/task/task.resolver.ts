@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, ResolveProperty, Parent } from '@nestjs/graphql'
 import { UseGuards } from '@nestjs/common'
 import { TaskEntity } from './task.entity'
 import { TaskDto } from './dto/task.dto'
@@ -10,6 +10,7 @@ import { CurrentUser } from '../decorators/user.decorator'
 import { ReturnUserDto } from '../user/dto/return-user.dto'
 import { UserService } from '../user/user.service'
 import { GroupService } from '../group/group.service'
+import { ID } from 'type-graphql'
 
 @Resolver(of => TaskEntity)
 export class TaskResolver {
@@ -22,14 +23,40 @@ export class TaskResolver {
   @Query(() => TaskDto)
   @UseGuards(GqlAuthGuard)
   async getCurrentTask(@CurrentUser() user: ReturnUserDto) {
-    return this.taskService.getCurrentTask(user.id)
+    const foundUser = await this.userService.findByEmail(user.email)
+
+    return this.taskService.getCurrentTask(foundUser.id)
   }
 
-  //   @Query(() => TaskDto)
-  //   @UseGuards(GqlAuthGuard)
-  //   async getGroupTasks(@Args('id') id: number) {
-  //     return this.taskService.getCurrentTask(user.id)
-  //   }
+  @Query(returns => [TaskDto], { name: 'getGroupTasks' })
+  @UseGuards(GqlAuthGuard)
+  async getGroupTasks(@Args({ name: 'id', type: () => ID }) id: number) {
+    return this.taskService.getGroupTasks(id)
+  }
+
+  // @Query(() => [ReturnUserDto])
+  // @UseGuards(GqlAuthGuard)
+  // async author(
+  //   @Args({ name: 'groupId', type: () => ID }) groupId: number,
+  //   @Args({ name: 'taskId', type: () => ID }) taskId: number,
+  // ) {
+  //   const group = await this.groupService.findOneById(groupId)
+  //   const task = await this.taskService.findById(taskId)
+
+  // }
+
+  // @ResolveProperty('author')
+  // @UseGuards(GqlAuthGuard)
+  // async author(@Parent() gtGroupTasks) {
+  //const { id } = getGroupTasks
+  //return await this.userService.getAuthor(id)
+  // }
+
+  @Query(() => [TaskDto])
+  @UseGuards(GqlAuthGuard)
+  async getGroupTasksToDoInProgress(@Args({ name: 'id', type: () => ID }) id: number) {
+    return this.taskService.getGroupTasksToDoInProgress(id)
+  }
 
   @Mutation(() => TaskDto)
   @UseGuards(GqlAuthGuard)
@@ -37,8 +64,8 @@ export class TaskResolver {
     const assignee = await this.userService.findById(data.assignee)
     const creator = await this.userService.findByEmail(user.email)
     const group = await this.groupService.findOneById(data.group)
-    if (!assignee) {
-      throw new Error('Assignee does not exist')
+    if (!assignee || !creator || !group) {
+      throw new Error('Something went wrong')
     }
     return this.taskService.createTask(data, creator, assignee, group)
   }
@@ -47,9 +74,9 @@ export class TaskResolver {
   @UseGuards(GqlAuthGuard)
   async updateTask(@Args('data') data: inputUpdateTask) {
     const assignee = await this.userService.findById(data.assignee)
-    const updatedTask = await this.userService.findById(data.id)
-    if (!assignee) {
-      throw new Error('Assignee does not exist')
+    const updatedTask = await this.taskService.findById(data.id)
+    if (!assignee || !updatedTask) {
+      throw new Error('Something went wrong')
     }
     return this.taskService.updateTask(data, updatedTask, assignee)
   }

@@ -10,6 +10,7 @@ import { inputUser } from './input/user.input'
 import { RequestResetPasswordDto } from '../mail/dto/requestResetPassword.dto'
 import { GqlAuthGuard } from '../guards/GqlAuthenticationGuard'
 import { CurrentUser } from '../decorators/user.decorator'
+import { ID } from 'type-graphql'
 
 @Resolver(of => UserEntity)
 export class UserResolver {
@@ -69,7 +70,7 @@ export class UserResolver {
   @Mutation(returns => ReturnUserDto)
   @UseGuards(GqlAuthGuard)
   async editUserDetails(
-    @Args('id') id: number,
+    @Args({ name: 'id', type: () => ID }) id: number,
     @Args('nick') nick: string,
     @Args('role') role: string,
     @Args('color') color: string,

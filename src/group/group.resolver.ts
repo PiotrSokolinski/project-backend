@@ -6,6 +6,7 @@ import { GroupDto } from './dto/group.dto'
 import { GroupService } from './group.service'
 import { UserService } from '../user/user.service'
 import { inputGroup } from './input/group.input'
+import { inputUpdateGroup } from './input/update-group.dto'
 import { CurrentUser } from '../decorators/user.decorator'
 import { ReturnUserDto } from '../user/dto/return-user.dto'
 import { GqlAuthGuard } from '../guards/GqlAuthenticationGuard'
@@ -28,12 +29,24 @@ export class GroupResolver {
     return this.groupService.createGroup(foundUser, data)
   }
 
+  @Mutation(returns => GroupDto)
+  @UseGuards(GqlAuthGuard)
+  async updateGroup(@Args('data') data: inputUpdateGroup) {
+    const updatedGroup = await this.groupService.findOneById(data.id)
+    if (!updatedGroup) {
+      throw new Error('You can not create group')
+    }
+    return this.groupService.updateGroup(data, updatedGroup)
+  }
+
   @Query(returns => GroupDto, { name: 'group' })
+  @UseGuards(GqlAuthGuard)
   async getGroup(@Args({ name: 'id', type: () => ID }) id: number) {
     return await this.groupService.findOneById(id)
   }
 
   @Query(returns => [ReturnUserDto], { name: 'members' })
+  @UseGuards(GqlAuthGuard)
   async getGroupMembers(@Args({ name: 'id', type: () => ID }) id: number) {
     return await this.userService.findGroupUsers(id)
   }

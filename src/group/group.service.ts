@@ -23,6 +23,16 @@ export class GroupService {
     return group
   }
 
+  async updateGroup(data: any, group: GroupEntity): Promise<GroupEntity> {
+    group.name = data.name
+    group.address = data.address
+    group.number = data.number
+    group.zipCode = data.zipCode
+    group.city = data.city
+    group.country = data.country
+    return this.GroupRepository.save(group)
+  }
+
   async findOneById(passedId: number): Promise<GroupEntity> {
     return this.GroupRepository.findOne({ where: { id: passedId } })
   }

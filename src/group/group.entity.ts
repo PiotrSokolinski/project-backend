@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm'
 import { UserEntity } from '../user/user.entity'
 import { TaskEntity } from '../task/task.entity'
+import { EventEntity } from '../event/event.entity'
 
 @Entity('groups')
 export class GroupEntity {
@@ -18,6 +19,11 @@ export class GroupEntity {
     cascade: true,
   })
   tasks: TaskEntity[]
+
+  @OneToMany(type => EventEntity, event => event.group, {
+    cascade: true,
+  })
+  events: EventEntity[]
 
   @Column('varchar', { default: '' })
   avatarUrl: string
