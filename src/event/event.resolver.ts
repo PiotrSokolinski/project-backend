@@ -1,18 +1,17 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
+import { Resolver, Query, Mutation, Args, ResolveProperty, Parent } from '@nestjs/graphql'
+import { ID } from 'type-graphql'
 import { UseGuards } from '@nestjs/common'
-import { EventEntity } from './event.entity'
-import { EventDto } from './dto/event.dto'
+import { Event } from './event.entity'
 import { EventService } from './event.service'
 import { inputEvent } from './inputs/event.input'
 import { inputUpdateEvent } from './inputs/update-event.input'
 import { GqlAuthGuard } from '../guards/GqlAuthenticationGuard'
 import { CurrentUser } from '../decorators/user.decorator'
-import { ReturnUserDto } from '../user/dto/return-user.dto'
 import { UserService } from '../user/user.service'
 import { GroupService } from '../group/group.service'
-import { ID } from 'type-graphql'
+import { User } from '../user/user.entity'
 
-@Resolver(of => EventEntity)
+@Resolver(of => Event)
 export class EventResolver {
   constructor(
     private readonly eventService: EventService,
@@ -20,9 +19,9 @@ export class EventResolver {
     private readonly groupService: GroupService,
   ) {}
 
-  @Mutation(() => EventDto)
+  @Mutation(() => Event)
   @UseGuards(GqlAuthGuard)
-  async createEvent(@CurrentUser() user: ReturnUserDto, @Args('data') data: inputEvent) {
+  async createEvent(@CurrentUser() user: User, @Args('data') data: inputEvent) {
     const invitedMembers = await this.userService.findAllByIds(data.invited)
     const creator = await this.userService.findByEmail(user.email)
     const group = await this.groupService.findOneById(data.group)
@@ -32,9 +31,9 @@ export class EventResolver {
     return this.eventService.createEvent(data, creator, invitedMembers, group)
   }
 
-  @Mutation(() => EventDto)
+  @Mutation(() => Event)
   @UseGuards(GqlAuthGuard)
-  async updateEvent(@CurrentUser() user: ReturnUserDto, @Args('data') data: inputUpdateEvent) {
+  async updateEvent(@CurrentUser() user: User, @Args('data') data: inputUpdateEvent) {
     const invitedMembers = await this.userService.findAllByIds(data.invited)
     const updatedEvent = await this.eventService.findById(data.id)
     if (!invitedMembers || !updatedEvent) {
@@ -43,7 +42,7 @@ export class EventResolver {
     return this.eventService.updateEvent(data, updatedEvent, invitedMembers)
   }
 
-  @Query(() => [EventDto])
+  @Query(() => [Event])
   @UseGuards(GqlAuthGuard)
   async getEvents(
     @Args({ name: 'id', type: () => ID }) id: number,
@@ -53,10 +52,37 @@ export class EventResolver {
     return this.eventService.getEvents(id, dateFrom, dateTo)
   }
 
-  @Query(() => EventDto)
+  @Query(() => Event)
   @UseGuards(GqlAuthGuard)
-  async getCurrentEvent(@CurrentUser() user: ReturnUserDto) {
+  async getEvent(
+    @CurrentUser() user: User,
+    @Args('current') current: boolean,
+    @Args({ name: 'id', type: () => ID }) id?: number,
+  ) {
     const foundUser = await this.userService.findByEmail(user.email)
-    return this.eventService.getCurrentEvent(foundUser.id)
+    if (current) return this.eventService.getCurrentEvent(foundUser.id)
+    return this.eventService.getOneEvent(id)
+  }
+
+  @ResolveProperty(returns => User)
+  async author(@Parent() getEvent) {
+    const { id } = getEvent
+    return await this.eventService.findEventAuthor(id)
+  }
+
+  @ResolveProperty(returns => User)
+  async invitedMembers(@Parent() getEvent) {
+    const { id } = getEvent
+    return await this.eventService.findInvitedMembers(id)
+  }
+
+  @Mutation(returns => Event)
+  @UseGuards(GqlAuthGuard)
+  async deleteEvent(@Args({ name: 'id', type: () => ID }) id: number) {
+    const deletedEvent = await this.eventService.findById(id)
+    if (!deletedEvent) {
+      throw new Error('Something went wrong')
+    }
+    return this.eventService.deleteEvent(deletedEvent)
   }
 }

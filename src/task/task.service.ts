@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { TaskEntity } from './task.entity'
-import { Repository } from 'typeorm'
-import { TaskDto } from './dto/task.dto'
-import { UserEntity } from '../user/user.entity'
+import { Task } from './task.entity'
+import { Repository, getConnection } from 'typeorm'
+import { User } from '../user/user.entity'
 
 @Injectable()
 export class TaskService {
-  constructor(@InjectRepository(TaskEntity) private readonly TaskRepository: Repository<TaskEntity>) {}
+  constructor(@InjectRepository(Task) private readonly TaskRepository: Repository<Task>) {}
 
-  async createTask(data: any, creator: any, assignee: any, group: any): Promise<TaskEntity> {
-    let task = new TaskEntity()
+  async createTask(data: any, creator: any, assignee: any, group: any): Promise<Task> {
+    let task = new Task()
     task.name = data.name
     task.description = data.description
     task.status = data.status
@@ -24,7 +23,7 @@ export class TaskService {
     return task
   }
 
-  async updateTask(data: any, task: any, assignee: any): Promise<TaskEntity> {
+  async updateTask(data: any, task: any, assignee: any): Promise<Task> {
     task.name = data.name
     task.description = data.description
     task.status = data.status
@@ -34,16 +33,16 @@ export class TaskService {
     return await this.TaskRepository.save(task)
   }
 
-  async findById(passedId: number): Promise<TaskEntity> {
+  async findById(passedId: number): Promise<Task> {
     return await this.TaskRepository.findOne({ where: { id: passedId } })
   }
 
   // TO DO: why does not work with @CurrentUser id
   // in other places Current User works fine
-  async getCurrentTask(userId: number): Promise<TaskEntity> {
+  async getCurrentTask(userId: number): Promise<Task> {
     const tasks = await this.TaskRepository.find({
       where: {
-        author: { id: userId },
+        assignee: { id: userId },
       },
       order: {
         createdAt: 'ASC',
@@ -52,15 +51,39 @@ export class TaskService {
     return tasks[tasks.length - 1]
   }
 
-  async getGroupTasks(passedId: number): Promise<TaskEntity[]> {
-    return await this.TaskRepository.find({ where: { group: { id: passedId } } })
+  async getGroupTasks(passedId: number): Promise<Task[]> {
+    return await this.TaskRepository.find({
+      where: { group: { id: passedId } },
+      order: {
+        createdAt: 'DESC',
+      },
+    })
   }
 
-  async getGroupTasksToDoInProgress(passedId: number): Promise<TaskEntity[]> {
+  async getGroupTasksToDoInProgress(passedId: number): Promise<Task[]> {
     const toDoTasks = await this.TaskRepository.find({ where: { group: { id: passedId }, status: 'To Do' } })
     const inProgressTasks = await this.TaskRepository.find({
       where: { group: { id: passedId }, status: 'In Progress' },
     })
     return toDoTasks.concat(inProgressTasks)
+  }
+
+  async getOneTask(passedId: number): Promise<Task> {
+    return await this.TaskRepository.findOne({ where: { id: passedId } })
+  }
+
+  async changeTaskStatus(task: Task, status: string): Promise<Task> {
+    task.status = status
+    return await this.TaskRepository.save(task)
+  }
+
+  async deleteTask(task: Task): Promise<Task> {
+    await getConnection()
+      .createQueryBuilder()
+      .delete()
+      .from(Task)
+      .where('id = :id', { id: task.id })
+      .execute()
+    return task
   }
 }

@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
-import { UserEntity } from './user.entity'
+import { User } from './user.entity'
 import { Repository, In } from 'typeorm'
-import { CreateUserDto } from './dto/create-user.dto'
+import { inputUser } from './user.input'
 
 const saltRounds = 10
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(UserEntity) private readonly UserRepository: Repository<UserEntity>) {}
+  constructor(@InjectRepository(User) private readonly UserRepository: Repository<User>) {}
 
-  async createUser(data: CreateUserDto, token: string): Promise<UserEntity> {
-    let user = new UserEntity()
+  async createUser(data: inputUser, token: string): Promise<User> {
+    let user = new User()
     user.email = data.email
     user.hashedPassword = await bcrypt.hash(data.password, saltRounds)
     user.firstName = data.firstName
@@ -22,27 +22,27 @@ export class UserService {
     return user
   }
 
-  async getUsers(): Promise<UserEntity[]> {
+  async getUsers(): Promise<User[]> {
     return await this.UserRepository.find()
   }
 
-  async findByEmail(newEmail: string): Promise<UserEntity> {
+  async findByEmail(newEmail: string): Promise<User> {
     return await this.UserRepository.findOne({ where: { email: newEmail } })
   }
 
-  async findByToken(newToken: string): Promise<UserEntity> {
+  async findByToken(newToken: string): Promise<User> {
     return await this.UserRepository.findOne({ where: { token: newToken } })
   }
 
-  async findById(newId: number): Promise<UserEntity> {
+  async findById(newId: number): Promise<User> {
     return await this.UserRepository.findOne({ where: { id: newId } })
   }
 
-  async updateUser(user: UserEntity): Promise<UserEntity> {
+  async updateUser(user: User): Promise<User> {
     return await this.UserRepository.save(user)
   }
 
-  async setNewPassword(user: UserEntity, newPassword: string): Promise<UserEntity> {
+  async setNewPassword(user: User, newPassword: string): Promise<User> {
     const newHashedPassord = await bcrypt.hash(newPassword, saltRounds)
     user.hashedPassword = newHashedPassord
     return await this.updateUser(user)
@@ -88,13 +88,29 @@ export class UserService {
     return await this.updateUser(user)
   }
 
-  async findAllByIds(ids: number[]): Promise<UserEntity[]> {
+  async findAllByIds(ids: number[]): Promise<User[]> {
     return await this.UserRepository.find({
       id: In(ids),
     })
   }
 
-  // async getAuthor(groupId: number, taskId: number): Promise<UserEntity> {
-  //   return await this.UserRepository.findOne({ where: { group: { id: groupId }, authorizedTasks: {} } })
-  // }
+  async findTaskAuthor(taskId: number): Promise<User> {
+    const users = await this.UserRepository.find()
+    const user = users.find(user => {
+      for (let i = 0; i < user.authorizedTasks.length; i += 1) {
+        if (user.authorizedTasks[i].id === taskId) return true
+      }
+    })
+    return user
+  }
+
+  async findAssignee(taskId: number): Promise<User> {
+    const users = await this.UserRepository.find()
+    const user = users.find(user => {
+      for (let i = 0; i < user.assignedTasks.length; i += 1) {
+        if (user.assignedTasks[i].id === taskId) return true
+      }
+    })
+    return user
+  }
 }

@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { GroupEntity } from './group.entity'
+import { Group } from './group.entity'
 import { Repository } from 'typeorm'
-import { GroupDto } from './dto/group.dto'
-import { UserEntity } from '../user/user.entity'
+import { User } from '../user/user.entity'
 
 @Injectable()
 export class GroupService {
-  constructor(@InjectRepository(GroupEntity) private readonly GroupRepository: Repository<GroupEntity>) {}
+  constructor(@InjectRepository(Group) private readonly GroupRepository: Repository<Group>) {}
 
-  async createGroup(user: UserEntity, data: any): Promise<GroupEntity> {
-    let group = new GroupEntity()
+  async createGroup(user: User, data: any): Promise<Group> {
+    let group = new Group()
     group.name = data.name
     group.address = data.address ? data.address : null
     group.number = data.number ? data.number : null
@@ -23,7 +22,7 @@ export class GroupService {
     return group
   }
 
-  async updateGroup(data: any, group: GroupEntity): Promise<GroupEntity> {
+  async updateGroup(data: any, group: Group): Promise<Group> {
     group.name = data.name
     group.address = data.address
     group.number = data.number
@@ -33,7 +32,13 @@ export class GroupService {
     return this.GroupRepository.save(group)
   }
 
-  async findOneById(passedId: number): Promise<GroupEntity> {
+  async findOneById(passedId: number): Promise<Group> {
     return this.GroupRepository.findOne({ where: { id: passedId } })
+  }
+
+  async findGroupForUser(passedId: number): Promise<Group> {
+    const groups = await this.GroupRepository.find()
+    const group = groups.find(group => group.members.some(member => member.id === passedId))
+    return group
   }
 }

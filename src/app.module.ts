@@ -9,6 +9,7 @@ import { GroupModule } from './group/group.module'
 import { TaskModule } from './task/task.module'
 import { EventModule } from './event/event.module'
 import { AuthenticationModule } from './authentication/authentication.module'
+import { MailModule } from './mail/mail.module'
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthenticationModule } from './authentication/authentication.module'
     GraphQLModule.forRoot({
       autoSchemaFile: 'schema.gql',
       context: ({ req }) => ({ req }),
+      installSubscriptionHandlers: true,
     }),
     MailerModule.forRoot({
       transport: 'smtps://user@domain.com:pass@smtp.domain.com',
@@ -35,6 +37,7 @@ import { AuthenticationModule } from './authentication/authentication.module'
     AuthenticationModule,
     TaskModule,
     EventModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,13 +1,14 @@
 import { UserResolver } from './user.resolver'
-import { Module } from '@nestjs/common'
+import { Module, forwardRef } from '@nestjs/common'
 import { UserService } from './user.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { UserEntity } from './user.entity'
+import { User } from './user.entity'
 import { AuthenticationModule } from '../authentication/authentication.module'
 import { MailModule } from '../mail/mail.module'
+import { GroupModule } from '../group/group.module'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity]), AuthenticationModule, MailModule],
+  imports: [TypeOrmModule.forFeature([User]), AuthenticationModule, MailModule, forwardRef(() => GroupModule)],
   providers: [UserResolver, UserService],
   exports: [UserService],
 })

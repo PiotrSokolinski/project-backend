@@ -1,37 +1,51 @@
 import { Entity, PrimaryGeneratedColumn, CreateDateColumn, Column, ManyToOne, JoinColumn } from 'typeorm'
-import { UserEntity } from '../user/user.entity'
-import { GroupEntity } from '../group/group.entity'
+import { Field, ObjectType, ID } from 'type-graphql'
+
+import { User } from '../user/user.entity'
+import { Group } from '../group/group.entity'
 
 @Entity('tasks')
-export class TaskEntity {
-  @PrimaryGeneratedColumn() id: number
+@ObjectType()
+export class Task {
+  @PrimaryGeneratedColumn()
+  @Field(type => ID)
+  id?: number
 
-  @CreateDateColumn() createdAt: Date
+  @CreateDateColumn()
+  @Field()
+  createdAt: Date
 
   @Column('varchar', { length: 50 })
+  @Field()
   name: string
 
   @Column('varchar')
+  @Field()
   description: string
 
   @Column('varchar')
+  @Field()
   status: string
 
-  @ManyToOne(type => UserEntity, assignee => assignee.authorizedTasks, {
+  @ManyToOne(type => User, assignee => assignee.authorizedTasks, {
     cascade: true,
   })
   @JoinColumn()
-  assignee: UserEntity
+  @Field(type => User)
+  assignee: User
 
-  @ManyToOne(type => UserEntity, author => author.assignedTasks, {
+  @ManyToOne(type => User, author => author.assignedTasks, {
     cascade: true,
   })
   @JoinColumn()
-  author: UserEntity
+  @Field(type => User)
+  author: User
 
-  @ManyToOne(type => GroupEntity, group => group.tasks)
-  group: GroupEntity
+  @ManyToOne(type => Group, group => group.tasks)
+  @Field(type => Group)
+  group: Group
 
   @Column('varchar')
+  @Field()
   priority: string
 }

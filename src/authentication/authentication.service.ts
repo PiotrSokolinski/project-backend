@@ -1,8 +1,7 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt'
-import { CreateUserDto } from '../user/dto/create-user.dto'
-import { UserEntity } from '../user/user.entity'
+import { User } from '../user/user.entity'
 import { UserService } from '../user/user.service'
 
 @Injectable()
@@ -22,17 +21,6 @@ export class AuthenticationService {
     const payload = { email: user.email }
     return this.jwtService.sign(payload)
   }
-
-  // async validatePassword(user: any, password: string): Promise<any> {
-  //   if (await bcrypt.compare(password, user.hashedPassword)) {
-  //     const newToken = await this.generateToken(user)
-  //     user.token = newToken
-  //     this.userService.updateToken(user.id, newToken)
-  //     const { hashedPassword, ...result } = user
-  //     return result
-  //   }
-  //   throw new Error('Wrong email or password!')
-  // }
 
   async loginUser(email: string, password: string): Promise<any> {
     const user = await this.userService.findByEmail(email)

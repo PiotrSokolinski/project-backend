@@ -1,45 +1,61 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm'
-import { UserEntity } from '../user/user.entity'
-import { TaskEntity } from '../task/task.entity'
-import { EventEntity } from '../event/event.entity'
+import { Field, ObjectType, ID, Int } from 'type-graphql'
+
+import { User } from '../user/user.entity'
+import { Task } from '../task/task.entity'
+import { Event } from '../event/event.entity'
 
 @Entity('groups')
-export class GroupEntity {
-  @PrimaryGeneratedColumn() id: number
+@ObjectType()
+export class Group {
+  @PrimaryGeneratedColumn()
+  @Field(type => ID)
+  id?: number
 
   @Column('varchar', { length: 50 })
+  @Field()
   name: string
 
-  @OneToMany(type => UserEntity, member => member.group, {
+  @OneToMany(type => User, member => member.group, {
     cascade: true,
+    eager: true,
   })
-  members: UserEntity[]
+  @Field(type => [User])
+  members: User[]
 
-  @OneToMany(type => TaskEntity, task => task.group, {
+  @OneToMany(type => Task, task => task.group, {
     cascade: true,
   })
-  tasks: TaskEntity[]
+  @Field(type => [Task])
+  tasks: Task[]
 
-  @OneToMany(type => EventEntity, event => event.group, {
+  @OneToMany(type => Event, event => event.group, {
     cascade: true,
   })
-  events: EventEntity[]
+  @Field(type => [Event])
+  events: Event[]
 
   @Column('varchar', { default: '' })
-  avatarUrl: string
+  @Field({ nullable: true })
+  avatarUrl?: string
 
   @Column('varchar', { default: null })
-  address: string
+  @Field({ nullable: true })
+  address?: string
 
   @Column('numeric', { default: null })
-  number: number
+  @Field(type => Int, { nullable: true })
+  number?: number
 
   @Column('numeric', { default: null })
-  zipCode: string
+  @Field({ nullable: true })
+  zipCode?: string
 
   @Column('varchar', { default: null })
-  city: string
+  @Field({ nullable: true })
+  city?: string
 
   @Column('varchar', { default: null })
-  country: string
+  @Field({ nullable: true })
+  country?: string
 }

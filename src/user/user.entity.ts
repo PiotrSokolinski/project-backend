@@ -1,63 +1,71 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Index,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-  JoinTable,
-  ManyToMany,
-} from 'typeorm'
-import { GroupEntity } from '../group/group.entity'
-import { TaskEntity } from '../task/task.entity'
-import { EventEntity } from '../event/event.entity'
+import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToOne, JoinColumn, OneToMany } from 'typeorm'
+import { Field, ObjectType, ID } from 'type-graphql'
+
+import { Group } from '../group/group.entity'
+import { Task } from '../task/task.entity'
+import { Event } from '../event/event.entity'
 
 @Entity('users')
 @Index(['email'], { unique: true })
-export class UserEntity {
-  @PrimaryGeneratedColumn() id: number
+@ObjectType()
+export class User {
+  @PrimaryGeneratedColumn()
+  @Field(type => ID)
+  id?: number
 
   @Column('varchar', { length: 50 })
+  @Field()
   email: string
 
   @Column('varchar')
   hashedPassword: string
 
   @Column('varchar', { length: 50 })
+  @Field()
   firstName: string
 
   @Column('varchar', { length: 50 })
+  @Field()
   lastName: string
 
-  @ManyToOne(type => GroupEntity, group => group.members)
+  @ManyToOne(type => Group, group => group.members)
   @JoinColumn()
-  group: GroupEntity
+  @Field()
+  group: Group
 
-  @OneToMany(type => TaskEntity, task => task.author)
-  authorizedTasks: TaskEntity[]
+  @OneToMany(type => Task, task => task.author, { eager: true })
+  @Field(type => [Task])
+  authorizedTasks: Task[]
 
-  @OneToMany(type => EventEntity, event => event.author)
-  authorizedEvents: EventEntity[]
+  @OneToMany(type => Event, event => event.author)
+  @Field(type => [Event])
+  authorizedEvents: Event[]
 
-  @OneToMany(type => TaskEntity, task => task.assignee)
-  assignedTasks: TaskEntity[]
+  @OneToMany(type => Task, task => task.assignee, { eager: true })
+  @Field(type => [Task])
+  assignedTasks: Task[]
 
   @Column('varchar', { default: '' })
-  avatarUrl: string
+  @Field({ nullable: true })
+  avatarUrl?: string
 
   @Column('boolean', { default: false })
+  @Field()
   owner: boolean
 
   @Column('varchar')
-  token: string
+  @Field({ nullable: true })
+  token?: string
 
   @Column('varchar', { default: '' })
+  @Field()
   nick: string
 
   @Column('varchar', { default: 'Administrator' })
+  @Field()
   role: string
 
   @Column('varchar', { default: '#033dfc' })
+  @Field()
   color: string
 }

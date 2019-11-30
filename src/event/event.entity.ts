@@ -8,37 +8,51 @@ import {
   JoinTable,
   ManyToMany,
 } from 'typeorm'
-import { UserEntity } from '../user/user.entity'
-import { GroupEntity } from '../group/group.entity'
+import { Field, ObjectType, ID } from 'type-graphql'
+import { User } from '../user/user.entity'
+import { Group } from '../group/group.entity'
 
 @Entity('events')
-export class EventEntity {
-  @PrimaryGeneratedColumn() id: number
+@ObjectType()
+export class Event {
+  @PrimaryGeneratedColumn()
+  @Field(type => ID)
+  id?: number
 
-  @CreateDateColumn() createdAt: Date
+  @CreateDateColumn()
+  @Field()
+  createdAt: Date
 
   @Column('varchar', { length: 50 })
+  @Field()
   name: string
 
   @Column('varchar')
+  @Field()
   description: string
 
   @Column()
+  @Field()
   startDate: Date
 
   @Column()
+  @Field()
   endDate: Date
 
-  @ManyToOne(type => UserEntity, author => author.authorizedEvents, {
+  @ManyToOne(type => User, author => author.authorizedEvents, {
     cascade: true,
+    eager: true,
   })
   @JoinColumn()
-  author: UserEntity
+  @Field(type => User)
+  author: User
 
-  @ManyToOne(type => GroupEntity, group => group.tasks)
-  group: GroupEntity
+  @ManyToOne(type => Group, group => group.tasks)
+  @Field(type => Group)
+  group: Group
 
-  @ManyToMany(type => UserEntity, { cascade: true })
+  @ManyToMany(type => User, { cascade: true, eager: true })
   @JoinTable()
-  invitedMembers: UserEntity[]
+  @Field(type => [User])
+  invitedMembers: User[]
 }

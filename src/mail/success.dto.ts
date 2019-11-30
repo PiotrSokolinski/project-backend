@@ -1,6 +1,6 @@
 import { Field, ObjectType } from 'type-graphql'
 
 @ObjectType()
-export class RequestResetPasswordDto {
+export class SuccessDto {
   @Field() readonly success: boolean
 }
