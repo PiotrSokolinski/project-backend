@@ -4,6 +4,7 @@ import { Field, ObjectType, ID, Int } from 'type-graphql'
 import { User } from '../user/user.entity'
 import { Task } from '../task/task.entity'
 import { Event } from '../event/event.entity'
+import { Message } from '../message/message.entity'
 
 @Entity('groups')
 @ObjectType()
@@ -15,6 +16,13 @@ export class Group {
   @Column('varchar', { length: 50 })
   @Field()
   name: string
+
+  @OneToMany(type => Message, message => message.group /*, {
+    cascade: true,
+    eager: true,
+  }*/)
+  @Field(type => [Message])
+  messages: Message[]
 
   @OneToMany(type => User, member => member.group, {
     cascade: true,

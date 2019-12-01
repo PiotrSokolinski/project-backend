@@ -4,6 +4,7 @@ import { Field, ObjectType, ID } from 'type-graphql'
 import { Group } from '../group/group.entity'
 import { Task } from '../task/task.entity'
 import { Event } from '../event/event.entity'
+import { Message } from '../message/message.entity'
 
 @Entity('users')
 @Index(['email'], { unique: true })
@@ -27,6 +28,13 @@ export class User {
   @Column('varchar', { length: 50 })
   @Field()
   lastName: string
+
+  @OneToMany(type => Message, message => message.sender /*, {
+    cascade: true,
+    eager: true,
+  }*/)
+  @Field(type => [Message])
+  messages: Message[]
 
   @ManyToOne(type => Group, group => group.members)
   @JoinColumn()

@@ -23,6 +23,7 @@ type Event {
 type Group {
   id: ID!
   name: String!
+  messages: [Message!]!
   members: [User!]!
   tasks: [Task!]!
   events: [Event!]!
@@ -97,6 +98,14 @@ input inputUser {
   lastName: String!
 }
 
+type Message {
+  id: ID!
+  createdAt: DateTime!
+  text: String!
+  group: Group!
+  sender: User!
+}
+
 type Mutation {
   register(data: inputUser!): User!
   login(password: String!, email: String!): User!
@@ -116,6 +125,7 @@ type Mutation {
   createEvent(data: inputEvent!): Event!
   updateEvent(data: inputUpdateEvent!): Event!
   deleteEvent(id: ID!): Event!
+  createMessage(id: ID!, text: String!): Message!
 }
 
 type Query {
@@ -127,6 +137,11 @@ type Query {
   getGroupTasksToDoInProgress(id: ID!): [Task!]!
   getEvents(dateTo: String!, dateFrom: String!, id: ID!): [Event!]!
   getEvent(id: ID!, current: Boolean!): Event!
+  getMessages(take: Int!, skip: Int!, id: ID!): [Message!]!
+}
+
+type Subscription {
+  newMessageCreated: Message!
 }
 
 type SuccessDto {
@@ -150,6 +165,7 @@ type User {
   email: String!
   firstName: String!
   lastName: String!
+  messages: [Message!]!
   group: Group!
   authorizedTasks: [Task!]!
   authorizedEvents: [Event!]!

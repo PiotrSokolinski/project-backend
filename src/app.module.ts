@@ -10,6 +10,7 @@ import { TaskModule } from './task/task.module'
 import { EventModule } from './event/event.module'
 import { AuthenticationModule } from './authentication/authentication.module'
 import { MailModule } from './mail/mail.module'
+import { MessageModule } from './message/message.module'
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { MailModule } from './mail/mail.module'
     TaskModule,
     EventModule,
     MailModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
