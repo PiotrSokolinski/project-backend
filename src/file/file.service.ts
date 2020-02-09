@@ -10,8 +10,8 @@ import { Group } from '../group/group.entity'
 const AWS_S3_BUCKET_NAME = 'projekt-inz'
 
 AWS.config.update({
-  accessKeyId: 'AKIAIQ4ZQCQACLRO6HQQ',
-  secretAccessKey: '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',
+  accessKeyId: '',
+  secretAccessKey: '',
 })
 
 const s3 = new AWS.S3()
