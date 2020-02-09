@@ -32,6 +32,10 @@ export class GroupService {
     return this.GroupRepository.save(group)
   }
 
+  async updateGroupProperty(group: Group): Promise<Group> {
+    return this.GroupRepository.save(group)
+  }
+
   async findOneById(passedId: number): Promise<Group> {
     return this.GroupRepository.findOne({ where: { id: passedId } })
   }

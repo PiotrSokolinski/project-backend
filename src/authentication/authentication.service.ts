@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt'
 import { User } from '../user/user.entity'
 import { UserService } from '../user/user.service'
+import { Group } from '../group/group.entity'
 
 @Injectable()
 export class AuthenticationService {
@@ -17,8 +18,22 @@ export class AuthenticationService {
     return await this.userService.createUser(user, token)
   }
 
-  async generateToken(user: any): Promise<any> {
+  async registerUserWithInvitation(user: any, group: Group): Promise<any> {
+    const token = await this.generateToken(user)
+    return await this.userService.createUser(user, token, group)
+  }
+
+  async generateToken(user: User): Promise<any> {
     const payload = { email: user.email }
+    return this.jwtService.sign(payload)
+  }
+
+  async generateInvitationToken(user: User, group: Group): Promise<any> {
+    const payload = {
+      userName: `${user.firstName} ${user.lastName}`,
+      groupId: group.id,
+      groupName: group.name,
+    }
     return this.jwtService.sign(payload)
   }
 

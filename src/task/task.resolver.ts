@@ -20,7 +20,7 @@ export class TaskResolver {
     private readonly groupService: GroupService,
   ) {}
 
-  @Query(returns => Task)
+  @Query(returns => Task, { nullable: true })
   @UseGuards(GqlAuthGuard)
   async getTask(
     @CurrentUser() user: User,

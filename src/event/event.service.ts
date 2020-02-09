@@ -61,7 +61,7 @@ export class EventService {
         eventIdInTable = i
       }
     }
-    return events[eventIdInTable]
+    return filteredEvents[eventIdInTable]
   }
 
   async getOneEvent(passedId: number): Promise<Event> {

@@ -49,6 +49,19 @@ export class UserResolver {
   }
 
   @Mutation(returns => User)
+  async registerWithInvitation(
+    @Args('data') data: inputUser,
+    @Args({ name: 'groupId', type: () => ID }) groupId: number,
+  ) {
+    const user = await this.userService.findByEmail(data.email)
+    const group = await this.groupService.findOneById(groupId)
+    if (user) {
+      throw new Error('User already exists!')
+    }
+    return this.authenticationService.registerUserWithInvitation(data, group)
+  }
+
+  @Mutation(returns => User)
   async login(@Args('email') email: string, @Args('password') password: string) {
     return this.authenticationService.loginUser(email, password)
   }
@@ -134,6 +147,26 @@ export class UserResolver {
     if (!updatedUser) {
       throw new Error('Password was not set.')
     }
-    return { success: false }
+    return { success: true }
+  }
+
+  @Mutation(returns => SuccessDto)
+  @UseGuards(GqlAuthGuard)
+  async sendInvitations(
+    @Args({ name: 'invitations', type: () => [String] }) invitations: string[],
+    @CurrentUser() user: User,
+  ) {
+    const foundUser = await this.userService.findByEmail(user.email)
+    const group = await this.groupService.findGroupForUser(foundUser.id)
+    console.log(group)
+    console.log(foundUser)
+    if (!foundUser) {
+      throw new Error('Something went wrong')
+    }
+    for (let i = 0; i < invitations.length; i += 1) {
+      const token = await this.authenticationService.generateInvitationToken(foundUser, group)
+      await this.mailService.sendInvitationEmail(invitations[i], token)
+    }
+    return { success: true }
   }
 }

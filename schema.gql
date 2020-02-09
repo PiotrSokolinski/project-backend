@@ -108,6 +108,7 @@ type Message {
 
 type Mutation {
   register(data: inputUser!): User!
+  registerWithInvitation(groupId: ID!, data: inputUser!): User!
   login(password: String!, email: String!): User!
   editName(lastName: String!, firstName: String!): User!
   editUserDetails(color: String!, role: String!, nick: String!, id: ID!): User!
@@ -116,6 +117,7 @@ type Mutation {
   removeUserFromGroup(id: ID!): User!
   requestPasswordReset(email: String!): SuccessDto!
   setPassword(resetPasswordToken: String!, newPassword: String!): SuccessDto!
+  sendInvitations(invitations: [String!]!): SuccessDto!
   createGroup(data: inputGroup!): Group!
   updateGroup(data: inputUpdateGroup!): Group!
   createTask(data: inputTask!): Task!
@@ -132,11 +134,11 @@ type Query {
   getUsers: [User!]!
   whoAmI: User!
   group(id: ID!): Group!
-  getTask(id: ID!, current: Boolean!): Task!
+  getTask(id: ID!, current: Boolean!): Task
   getGroupTasks(id: ID!): [Task!]!
   getGroupTasksToDoInProgress(id: ID!): [Task!]!
   getEvents(dateTo: String!, dateFrom: String!, id: ID!): [Event!]!
-  getEvent(id: ID!, current: Boolean!): Event!
+  getEvent(id: ID!, current: Boolean!): Event
   getMessages(take: Int!, skip: Int!, id: ID!): [Message!]!
 }
 
@@ -149,15 +151,15 @@ type SuccessDto {
 }
 
 type Task {
-  id: ID!
-  createdAt: DateTime!
-  name: String!
-  description: String!
-  status: String!
-  assignee: User!
-  author: User!
-  group: Group!
-  priority: String!
+  id: ID
+  createdAt: DateTime
+  name: String
+  description: String
+  status: String
+  assignee: User
+  author: User
+  group: Group
+  priority: String
 }
 
 type User {

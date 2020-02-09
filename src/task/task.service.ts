@@ -40,6 +40,7 @@ export class TaskService {
   // TO DO: why does not work with @CurrentUser id
   // in other places Current User works fine
   async getCurrentTask(userId: number): Promise<Task> {
+    console.log('eeee', userId)
     const tasks = await this.TaskRepository.find({
       where: {
         assignee: { id: userId },
@@ -48,6 +49,8 @@ export class TaskService {
         createdAt: 'ASC',
       },
     })
+    console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', tasks)
+
     return tasks[tasks.length - 1]
   }
 

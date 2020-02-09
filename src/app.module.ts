@@ -11,6 +11,9 @@ import { EventModule } from './event/event.module'
 import { AuthenticationModule } from './authentication/authentication.module'
 import { MailModule } from './mail/mail.module'
 import { MessageModule } from './message/message.module'
+import { FileService } from './file/file.service'
+import { FileController } from './file/file.controller'
+import { FileModule } from './file/file.module'
 
 @Module({
   imports: [
@@ -20,19 +23,16 @@ import { MessageModule } from './message/message.module'
       context: ({ req }) => ({ req }),
       installSubscriptionHandlers: true,
     }),
-    MailerModule.forRoot({
-      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
-      defaults: {
-        from: '"nest-modules" <modules@nestjs.com>',
-      },
-      template: {
-        dir: __dirname + '/templates',
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: true,
-        },
-      },
-    }),
+    // MailerModule.forRoot({
+    //   transport: 'smtp.mailtrap.io',
+
+    //   template: {
+    //     adapter: new HandlebarsAdapter(),
+    //     options: {
+    //       strict: true,
+    //     },
+    //   },
+    // }),
     UserModule,
     GroupModule,
     AuthenticationModule,
@@ -40,6 +40,7 @@ import { MessageModule } from './message/message.module'
     EventModule,
     MailModule,
     MessageModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

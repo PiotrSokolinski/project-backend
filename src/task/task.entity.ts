@@ -8,44 +8,44 @@ import { Group } from '../group/group.entity'
 @ObjectType()
 export class Task {
   @PrimaryGeneratedColumn()
-  @Field(type => ID)
+  @Field(type => ID, { nullable: true })
   id?: number
 
   @CreateDateColumn()
-  @Field()
+  @Field({ nullable: true })
   createdAt: Date
 
   @Column('varchar', { length: 50 })
-  @Field()
+  @Field({ nullable: true })
   name: string
 
   @Column('varchar')
-  @Field()
+  @Field({ nullable: true })
   description: string
 
   @Column('varchar')
-  @Field()
+  @Field({ nullable: true })
   status: string
 
   @ManyToOne(type => User, assignee => assignee.authorizedTasks, {
     cascade: true,
   })
   @JoinColumn()
-  @Field(type => User)
+  @Field(type => User, { nullable: true })
   assignee: User
 
   @ManyToOne(type => User, author => author.assignedTasks, {
     cascade: true,
   })
   @JoinColumn()
-  @Field(type => User)
+  @Field(type => User, { nullable: true })
   author: User
 
   @ManyToOne(type => Group, group => group.tasks)
-  @Field(type => Group)
+  @Field(type => Group, { nullable: true })
   group: Group
 
   @Column('varchar')
-  @Field()
+  @Field({ nullable: true })
   priority: string
 }

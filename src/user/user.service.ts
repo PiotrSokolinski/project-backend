@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt'
 import { User } from './user.entity'
 import { Repository, In } from 'typeorm'
 import { inputUser } from './user.input'
+import { Group } from '../group/group.entity'
 
 const saltRounds = 10
 
@@ -11,13 +12,16 @@ const saltRounds = 10
 export class UserService {
   constructor(@InjectRepository(User) private readonly UserRepository: Repository<User>) {}
 
-  async createUser(data: inputUser, token: string): Promise<User> {
+  async createUser(data: inputUser, token: string, group?: Group): Promise<User> {
     let user = new User()
     user.email = data.email
     user.hashedPassword = await bcrypt.hash(data.password, saltRounds)
     user.firstName = data.firstName
     user.lastName = data.lastName
     user.token = token
+    if (group) {
+      user.group = group
+    }
     await this.UserRepository.save(user)
     return user
   }

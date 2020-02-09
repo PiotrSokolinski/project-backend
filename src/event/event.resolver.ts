@@ -52,7 +52,7 @@ export class EventResolver {
     return this.eventService.getEvents(id, dateFrom, dateTo)
   }
 
-  @Query(() => Event)
+  @Query(() => Event, { nullable: true })
   @UseGuards(GqlAuthGuard)
   async getEvent(
     @CurrentUser() user: User,
